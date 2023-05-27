@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	 PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="board">
+	<!-- 게시글 리스트 조회 -->
+	<select id="selectBoardList" parameterType="searchVO" resultType="boardVO">
+		select * from (
+	          select rownum as num, A.* 
+	            from (select * from BOARD where ${field} like '%'||#{searchWord}||'%' order by BO_NO desc) A
+	    )
+	    where num between #{startNum} and #{lastNum}
+	</select>
+	
+	<!-- 게시글 갯수 출력 -->
+	<select id="countBoardList" parameterType="searchVO" resultType="int">
+		select count(*) from (
+	          select rownum as num, A.*
+	            from (select * from BOARD where ${field} like '%'||#{searchWord}||'%' order by BO_NO desc) A
+	    )
+	</select>
+	
+	<!-- 게시글 작성 -->
+	<insert id="insertBoard" parameterType="boardVO">
+		insert into BOARD values(SEQ_BOARD.nextval, #{bo_title}, #{bo_content}, #{bo_writer}, sysdate, 0,#{bo_fileNames})
+	</insert>
+	
+	<!-- 상세 페이지 조회 -->
+	<select id="selectDetailBoard" parameterType="String" resultType="boardVO">
+		select * from board where BO_NO = #{bo_no}
+	</select>
+	
+	<!-- 조회수 증가 -->
+	<update id="updateHit" parameterType="String">
+		update BOARD set BO_HIT = BO_HIT + 1 where BO_NO = #{bo_no}
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<delete id="deleteBoard" parameterType="String">
+		delete from BOARD where bo_no = #{bo_no}
+	</delete>
+	
+	<!-- 게시글 수정 -->
+	<update id="updateBoard" parameterType="boardVO">
+		update BOARD set BO_TITLE = #{bo_title}, BO_CONTENT = #{bo_content} where BO_NO = #{bo_no}
+	</update>
+</mapper>
